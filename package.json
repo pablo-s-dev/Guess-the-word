@@ -1,0 +1,29 @@
+{
+  "name": "guessdaword",
+  "version": "1.0.0",
+  "description": "This website intends to increase the retrievability of english words by using the active recall method to make a concept become a strongger trigger for the actual word",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "active",
+    "recall",
+    "english",
+    "learning",
+    "practice",
+    "memorization",
+    "language",
+    "game",
+    "word",
+    "words",
+    "definitions",
+    "recalling",
+    "recognize",
+    "remember",
+    "increase",
+    "retrievability"
+  ],
+  "author": "Pablo Santana de Oliveira",
+  "license": "UNLICENSED"
+}
