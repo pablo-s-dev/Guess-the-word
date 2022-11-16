@@ -4,7 +4,7 @@
   "description": "This website intends to increase the retrievability of english words by using the active recall method to make a concept become a strongger trigger for the actual word",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "app.js"
   },
   "keywords": [
     "active",
