@@ -14,12 +14,7 @@ var cursor_html = '<span class="cursor">|</span>';
 var cursor2_html = '<span id="cursor2">|</span>';
 var title_defs = document.getElementById('title-defs');
 var input_html = '<input type="text" name="" class="letterInputs" maxlength="1">'
-title.innerHTML = ''
-var e = 0;
-var b = 0;
-var str = 'Guess the word!';
 var definitions = [];
-var word = '';
 var input_index = 0;
 var bottom = document.getElementsByClassName('bottom')[0];
 var letterInputs = document.getElementsByClassName('letterInputs');
@@ -29,28 +24,89 @@ var break_lines = 0
 var n_lines = 0
 let next;
 let inputs_container = document.getElementById("inputs_container");
-let stop = false;
 let t;
-  
-var typeTimer = setInterval(function() {
-  e = e + 1;
-  if(str[e-1] == ' '){
-    word += str.slice(b, e) + '<br>' 
-    b = e;
-    title.innerHTML = word + cursor_html;
+let description = document.getElementById("description");
+var typeTimer;
+var game = document.getElementsByClassName("game")[0];
+var top = document.getElementsByClassName("top")[0];
+var middle = document.getElementsByClassName("middle")[0];
+var mid = document.getElementsByClassName("mid")[0];
+next = document.getElementsByClassName("next")[0];
+var info = document.getElementById("info");
+let start_button = document.getElementById("start");
+let switcher = false;
+const description_string = 'This game intends to increase the retrievability of english words by using the active recall method to make a concept a strongger trigger for the actual word.'
+
+function typing_effect(element, str, br, fadeOut, speed){
+
+  return new Promise((resolve, reject)=>{
+    element.innerHTML = ''
+    let word = '';
+    let e = 0;
+    let b = 0;
+    typeTimer = setInterval(()=>{
+      e = e + 1;
+    if(str[e-1] == ' '){
+      if(br){
+        word += str.slice(b, e) + '<br>' 
+      }
+      else{
+        word += str.slice(b, e)
+      }
+      b = e;
+      element.innerHTML = word + cursor_html;
+    }
+    else{
+      element.innerHTML = word + str.slice(b, e) + cursor_html;
+    }
+    if (e === str.length) {
+      clearInterval(typeTimer);
+      e = 0;
+      if(fadeOut != 'inf'){
+        setTimeout(()=>{
+          element.innerHTML = '';
+          resolve();
+        }, fadeOut)
+      }
+    }
+    }, speed)
+    
+  })
+}
+
+function beggining(){
+  info.addEventListener('click', info_fun);
+  start_button.addEventListener('click', start_fun);
+  typing_effect(title, 'Guess the word!', true, 'inf', 70)
+
+}
+
+function info_fun(){
+  if(switcher){
+    description.innerText = description_string
+    switcher = false
   }
   else{
-    title.innerHTML = word + str.slice(b, e) + cursor_html;
+    description.innerText = 'Author: Pablo Santana de Oliveira'
+    switcher = true
   }
-  if (e === str.length) {
-    clearInterval(typeTimer);
-    e = 0;
-  };
-}, 70)
+  
+}
 
-setTimeout(()=>{
-  title.innerHTML = '';
-}, 3500)
+function start_fun(){
+  description.remove();
+  info.remove();
+  start_button.remove();
+  title_defs.innerText = 'Definitions:'  
+  middle.style.animationPlayState = 'running'
+  next.style.display = 'inline-block'
+  next.style.animationPlayState = 'running'
+  title.remove();
+  newWord()
+  .then(()=>{
+      inputs_animation();
+    })
+}
 
 function next_fun(){
   clearInterval(t);
@@ -61,21 +117,17 @@ function next_fun(){
   defs_html.innerHTML = ''
   word_guess = '';
   input_index = 0;
+  inputs_container.style.animation = '';
   newWord().then(()=>{
     inputs_animation();
   })
 
   }, 300)
-
-  console.log("next")
-  
 }
 function deleting() {
-
   while(letterInputs.length>0){
     letterInputs[letterInputs.length-1].remove()
   }
-  next.remove();
 }
 
 function error(){
@@ -84,6 +136,7 @@ function error(){
 
 function inputs_animation(){
   inputs_container = document.getElementById("inputs_container");
+  
   for(const a of Array(words[index].length)){
     inputs_container.innerHTML += input_html;
   }
@@ -103,8 +156,8 @@ function inputs_animation(){
     }
   }
   letterInputs = document.getElementsByClassName('letterInputs');
-  bottom.innerHTML += '<img class="next" src="images/arrow.png" style="width: 5vmin; height: 4vmin">'
-  next = document.getElementsByClassName("next")[0];
+  inputs_container = document.getElementById("inputs_container");
+
   next.addEventListener('click', next_fun)
   letterInputs[input_index]?.focus();
   backspace_detection();
@@ -136,16 +189,9 @@ function inputs_animation(){
   
 }
 
-setTimeout(()=>{
-  newWord().then(()=>{
-    inputs_animation();
-  })
-  
-}, 4000)
 
 var check_letters = (letterInput)=>{
   if(word_guess == words[index]){
-    console.log("ACERTOU")
     next_fun();
   }
   else if(letterInput.value != ''){
@@ -203,8 +249,6 @@ var word2 = '';
 
 async function newWord(){
   index = ( Math.floor(Math.random() * 233464));
-  console.log(words[index]);
-
   await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + words[index])
   .then((response)=>{
     if(response.ok){
@@ -240,7 +284,7 @@ function typeTimerForDefs(){
 
   let div_middle_height = parseFloat(window.getComputedStyle(document.getElementsByClassName('middle')[0], null).getPropertyValue('height').replace("px", ''));
   let div_middle_width = parseFloat(window.getComputedStyle(document.getElementsByClassName('middle')[0], null).getPropertyValue('width').replace("px", ''));
-  let prev_font_size = div_middle_height * 0.08;
+  let prev_font_size = div_middle_height * 0.038;
 
   break_lines = 0
 
@@ -275,3 +319,4 @@ function typeTimerForDefs(){
 
 }
 
+beggining();

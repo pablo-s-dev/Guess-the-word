@@ -7,7 +7,8 @@
     <link rel="stylesheet" href="/style.css?v=1.0.0" type="text/css">
     <link rel="preconnect" href="https://fonts.googleapis.com" type="text/css">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin type="text/css">
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Montserrat&family=Sacramento&display=swap" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" type="text/css">
     <script type="module" src="/front.js?v=1.0.0" defer type="application/javascript
     "> </script>
     
@@ -15,22 +16,29 @@
 </head>
 <body>
     <div class="game">
-        <div class="t-container">
-            <h1 id="title-defs">Definitions:<br></h1>
+        <div class="top">
             
+            <h1 id="title-defs"></h1>
         </div>
             
-        <div class="mid">    
+        <div class="mid">
             <div class="middle">
-                <div class="first-card"></div>
                 <h1 id="main-title"></h1>
-                <h1 id="defs"></h1>
+                
+                <h1 id="defs"></h1> 
             </div>
-            
+                <button id="start">start</button>
+                
+               
         </div>  
         <div class="bottom">
             <div id="inputs_container"></div>
+            <p id="description">This game intends to increase the retrievability of english words by using the active recall method to make a concept a strongger trigger for the actual word.</p>
+            <img id="info" src="images/info.png">
         </div>
+        <img class="next" src="images/arrow.png">
+
     </div>
+    
 </body>
 </html>
