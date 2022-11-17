@@ -224,7 +224,7 @@ function backspace_detection(){
           input_index -= 1;
         }
         letterInputs[input_index]?.focus();
-        letterInputs[l].setAttribute("value", '');
+        letterInputs[input_index].setAttribute("value", '');
       }
     });
   }
