@@ -4,7 +4,7 @@
   "description": "This website intends to increase the retrievability of english words by using the active recall method to make a concept become a strongger trigger for the actual word",
   "main": "app.js",
   "scripts": {
-    "start": "node index"
+    "start": "node app.js"
   },
   "keywords": [
     "active",
@@ -25,5 +25,8 @@
     "retrievability"
   ],
   "author": "Pablo Santana de Oliveira",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }

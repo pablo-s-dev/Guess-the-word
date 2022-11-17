@@ -103,7 +103,7 @@ function inputs_animation(){
     }
   }
   letterInputs = document.getElementsByClassName('letterInputs');
-  bottom.innerHTML += '<img class="next" src="imgs/arrow.png" style="width: 5vmin; height: 4vmin">'
+  bottom.innerHTML += '<img class="next" src="images/arrow.png" style="width: 5vmin; height: 4vmin">'
   next = document.getElementsByClassName("next")[0];
   next.addEventListener('click', next_fun)
   letterInputs[input_index]?.focus();
