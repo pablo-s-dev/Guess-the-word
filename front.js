@@ -13,7 +13,7 @@ import words from './words.json' assert {type: 'json'};
 var cursor_html = '<span class="cursor">|</span>';
 var cursor2_html = '<span id="cursor2">|</span>';
 var title_defs = document.getElementById('title-defs');
-var input_html = '<input type="text" name="" class="letterInputs" maxlength="1">'
+var input_html = '<input type="text" name="" class="letterInputs" maxlength="1" autocapitalize="none">'
 var definitions = [];
 var input_index = 0;
 var bottom = document.getElementsByClassName('bottom')[0];
