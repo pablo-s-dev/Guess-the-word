@@ -35,6 +35,8 @@ next = document.getElementsByClassName("next")[0];
 var info = document.getElementById("info");
 let start_button = document.getElementById("start");
 let switcher = false;
+let score = parseInt(localStorage['score']) || 0;
+var score_e = document.getElementById("score");
 const description_string = 'This game intends to increase the retrievability of english words by using the active recall method to make a concept a strongger trigger for the actual word.'
 
 function typing_effect(element, str, br, fadeOut, speed){
@@ -97,7 +99,10 @@ function start_fun(){
   description.remove();
   info.remove();
   start_button.remove();
-  title_defs.innerText = 'Definitions:'  
+  title_defs.innerText = 'Definitions:'
+  title_defs.appendChild(score_e)
+  score_e = document.getElementById("score");
+  score_e.innerText = "Score: "+score;
   middle.style.animationPlayState = 'running'
   next.style.display = 'inline-block'
   next.style.animationPlayState = 'running'
@@ -192,6 +197,9 @@ function inputs_animation(){
 
 var check_letters = (letterInput)=>{
   if(word_guess == words[index]){
+    score +=1
+    score_e.innerText = "Score: "+score;
+    localStorage['score'] = score;
     next_fun();
   }
   else if(letterInput.value != ''){
@@ -202,9 +210,12 @@ var check_letters = (letterInput)=>{
       letterInput.style.color = 'red'
     }
     if(letterInputs.length - 1 == input_index){
-      for(const letterInput of letterInputs){
-        word_guess += letterInput.value;
+      if(letterInput.value != ''){
+        for(const letterInput of letterInputs){
+          word_guess += letterInput.value;
+        }
       }
+      
     }
   }
   else{
@@ -217,7 +228,7 @@ function backspace_detection(){
     letterInput.addEventListener('keydown', function(event) {
       const key = event.key; // const {key} = event; ES6+
       if (key === "Backspace" && input_index>0 && letterInput.value == '') {
-        if(letterInputs[input_index+1].readOnly == true){
+        if(letterInputs[input_index+1]?.readOnly == true){
           input_index -= 2;
         }
         else{
@@ -284,7 +295,7 @@ function typeTimerForDefs(){
 
   let div_middle_height = parseFloat(window.getComputedStyle(document.getElementsByClassName('middle')[0], null).getPropertyValue('height').replace("px", ''));
   let div_middle_width = parseFloat(window.getComputedStyle(document.getElementsByClassName('middle')[0], null).getPropertyValue('width').replace("px", ''));
-  let prev_font_size = div_middle_height * 0.038;
+  let prev_font_size = div_middle_height * 0.07;
 
   break_lines = 0
 
