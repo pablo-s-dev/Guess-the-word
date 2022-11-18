@@ -71,7 +71,7 @@ body{
     animation-direction: normal;
     animation-fill-mode: forwards;
     animation-play-state: paused;
-    background-color: rgb(20, 20, 20);
+    background-color: rgb(25, 25, 25);
     box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.411);
 }
 
@@ -200,14 +200,16 @@ body{
 
 #start{
     font-size: 6%;
-    font-weight: 100;
-    color: rgb(20, 20, 20);
+    color: rgb(148, 148, 148);
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    background-color: rgb(94, 94, 94);
+    background-color: rgb(30, 30, 30);
     padding: 0.5vmin 2.5vmin 0.5vmin 2.5vmin;
     position: relative;
     top: calc(18vmin);
-    opacity: 80;
+    opacity: 100;
+    border-bottom-left-radius: 2vmin;
+    border-top-right-radius: 2vmin;
+    box-shadow: 0.3vmin 0.3vmin 0.1vmin rgba(0, 0, 0, 0.3);
     visibility: hidden;
 }
 #score{
