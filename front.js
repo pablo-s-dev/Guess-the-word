@@ -37,7 +37,7 @@ let start_button = document.getElementById("start");
 let switcher = false;
 let score = parseInt(localStorage['score']) || 0;
 var score_e = document.getElementById("score");
-const description_string = 'This game intends to increase the retrievability of English words by using the active recall method to make a concept a stronger trigger for the actual word.'
+const description_string = 'This game intends to increase the retrievability of English words by using the active recall method to make a concept turn into a stronger trigger for the actual word.'
 
 function typing_effect(element, str, br, fadeOut, speed){
 
@@ -80,7 +80,7 @@ function beggining(){
   info.addEventListener('click', info_fun);
   start_button.addEventListener('click', start_fun);
   typing_effect(title, 'Guess the word!', true, 'inf', 70)
-
+  start_button.style.visibility = 'visible'
 }
 
 function info_fun(){

@@ -199,14 +199,16 @@ body{
 }
 
 #start{
-    font-size: 7%;
-    color: rgb(25, 25, 25);
-    font-family: Montserrat, sans-serif;
-    background-color: rgb(148, 148, 148);
-    padding: 0.1vmin 2vmin 0.1vmin 2vmin;
+    font-size: 6%;
+    font-weight: 100;
+    color: rgb(20, 20, 20);
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    background-color: rgb(94, 94, 94);
+    padding: 0.5vmin 2.5vmin 0.5vmin 2.5vmin;
     position: relative;
     top: calc(18vmin);
     opacity: 80;
+    visibility: hidden;
 }
 #score{
     position: absolute;
@@ -258,17 +260,6 @@ body{
     }
 }
 
-@keyframes inputs_size{
-    0%{
-        width: 5vmin;
-        height: 5vmin;
-    }
-    100%{
-        width: 80vw;
-        height: fit-content;
-        flex-wrap: wrap;
-    }
-}
 @keyframes blinking {
     50% {opacity: 1;}
     100% {opacity: 0;}
@@ -298,7 +289,7 @@ body{
         column-gap: 0;
     }
     100%{
-        width: 100vw;
+        width: max-content;
         column-gap: 1vmin;
     }
 }
