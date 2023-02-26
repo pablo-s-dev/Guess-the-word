@@ -1,245 +1,455 @@
-var title = document.getElementById('main-title');
-var defs_html = document.getElementById('defs');
-var cursor2 = document.getElementById('cursor2');
-var middle = document.getElementById('middle');
+var gameTitleHtml = document.getElementById('gameTitle');
+var gameTitleContainer = document.getElementById('gameTitleContainer');
+var defsListHtml = document.getElementById('defsList');
+var defsCard = document.getElementById('defsCard');
+var unmutedIcon = document.getElementById('unmutedIcon');
+var mutedIcon = document.getElementById('mutedIcon');
+var toggleAudioBtn = document.getElementById('toggleAudioBtn');
+var defsTitleHtml = document.getElementById('defsTitle');
+var gameContainer = document.getElementById("gameContainer");
+var topContainer = document.getElementById("topContainer");
+var topContainer = document.getElementById("topContainer");
+var onlyOnIntro = document.querySelectorAll(".onlyOnIntro");
+var info = document.getElementById("info");
+var startBtn = document.getElementById("startBtn");
+var btnContainer = document.getElementById("btnContainer");
+var bottomContainer = document.getElementById('bottomContainer');
+var letterInputs = document.getElementsByClassName('letterInputs');
+var reviewBtn = document.getElementById('reviewBtn');
+var inputsContainer = document.getElementById("inputsContainer");
+var inputHtml = '<input type="text" class="letterInputs" maxlength="1" autocapitalize="none" autocomplete="new-password">';
+var next = document.getElementById("next");
+var showAnswerBtn = document.getElementById("showAnswerBtn");
+var copyAnswerBtn = document.getElementById("copyAnswerBtn");
+var score = parseInt(localStorage['score']) || 0;
+var wordsSeen;
+var score_e = document.getElementById("score");
+let description = document.getElementById("description");
+var cursorHtml = '<span id="cursor">|</span>';
+var typingPromise;
 var word_guess = '';
 var defsTyped = 0;
-var nDefsOfSameType = 0;
+var nDefs = 0;
 var nTypes = 0;
 var index;
 var defs = [];
 var defs_single_string = '';
-import words from './words.json' assert {type: 'json'};
-var cursor_html = '<span class="cursor">|</span>';
-var cursor2_html = '<span id="cursor2">|</span>';
-var title_defs = document.getElementById('title-defs');
-var input_html = '<input type="text" name="" class="letterInputs" maxlength="1" autocapitalize="none" autocomplete="off">'
+var gTypingSpeed = 40;
+var muted = false;
 var definitions = [];
-var input_index = 0;
-var bottom = document.getElementsByClassName('bottom')[0];
-var letterInputs = document.getElementsByClassName('letterInputs');
-var checking;
-var n_letters = 0
-var break_lines = 0
-var n_lines = 0
-let next;
-let inputs_container = document.getElementById("inputs_container");
-let t;
-let description = document.getElementById("description");
-var typeTimer;
-var game = document.getElementsByClassName("game")[0];
-var top = document.getElementsByClassName("top")[0];
-var middle = document.getElementsByClassName("middle")[0];
-var mid = document.getElementsByClassName("mid")[0];
-next = document.getElementsByClassName("next")[0];
-var info = document.getElementById("info");
-let start_button = document.getElementById("start");
+var defsSpeech;
+var checkingTimerId;
+var n_letters = 0;
+var break_lines = 0;
+var n_lines = 0;
+var speechSynthesis = window.speechSynthesis;
+var breakTyping = false;
+var typeTimerId;
 let switcher = false;
-let score = parseInt(localStorage['score']) || 0;
-var score_e = document.getElementById("score");
+var doneTypingDefs;
+var sucessSoundEffect;
+const copyHtml = `<button class="btn" style="position: absolute; right: -70px; width: 3vmin; height: 3vmin; ">
+<svg xmlns="http://www.w3.org/2000/svg" width="50%" height="50%" viewBox="0 0 24 24" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+  <path fill="currentColor" d="M5 22q-.825 0-1.413-.588T3 20V6h2v14h11v2H5Zm4-4q-.825 0-1.413-.588T7 16V4q0-.825.588-1.413T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.588 1.413T18 18H9Z"/>
+</svg>
+</button>`
 const description_string = 'This game intends to increase the retrievability of English words by using the active recall method to make a concept turn into a stronger trigger for the actual word.'
 
-function typing_effect(element, str, br, fadeOut, speed){
+window.addEventListener('load', beggining);
+window.addEventListener('resize', ()=>{
+  let vh = window.visualViewport.height * 0.01;
+  gameContainer.style.setProperty('--vh', `${vh}px`);
+})
 
-  return new Promise((resolve, reject)=>{
-    element.innerHTML = ''
-    let word = '';
-    let e = 0;
-    let b = 0;
-    typeTimer = setInterval(()=>{
-      e = e + 1;
-    if(str[e-1] == ' '){
-      if(br){
-        word += str.slice(b, e) + '<br>' 
-      }
-      else{
-        word += str.slice(b, e)
-      }
-      b = e;
-      element.innerHTML = word + cursor_html;
+
+
+
+async function typing_effect(element, str, oneWordPerLine, fadeOut, speed, deleteTheCursor) {
+  var e=0, b=0;
+
+  return new Promise((resolve, reject) => {
+    if(breakTyping){
+      reject();
+      return;
     }
-    else{
-      element.innerHTML = word + str.slice(b, e) + cursor_html;
-    }
-    if (e === str.length) {
-      clearInterval(typeTimer);
-      e = 0;
-      if(fadeOut != 'inf'){
-        setTimeout(()=>{
-          element.innerHTML = '';
+    //deleting effect
+    if(str == ''){
+      str = element.innerText;
+      tam = element.innerHTML.length;
+      i = 0;
+      typeTimerId = setInterval(() => {
+        if(i >= tam){
           resolve();
-        }, fadeOut)
-      }
+          clearInterval(typeTimerId);
+        }
+        element.innerHTML = element.textContent.slice(0, -2) + cursorHtml;
+        i += 1
+      }, speed)
     }
-    }, speed)
-    
+    //typing effect
+    else{
+      e = 0;
+      b = 0;
+      word = '';  
+      typeTimerId = setInterval(() => {
+        if(gTypingSpeed == 0){
+          element.innerText = str;
+          clearInterval(typeTimerId);
+          resolve();
+          return;
+        }
+      e = e + 1;
+      if (str[e - 1] == ' ') { //if a word has been typed
+        if (oneWordPerLine) {
+          word += str.slice(b, e) + '<br>'
+        }
+        else {
+          word += str.slice(b, e)
+        }
+        b = e;
+        element.innerHTML = word + cursorHtml;
+      }
+      else {
+        element.innerHTML = word + str.slice(b, e) + cursorHtml;
+      }
+      if (e === str.length) {
+        if(deleteTheCursor){
+          element.innerHTML = word + str.slice(b, e);
+        }
+        clearInterval(typeTimerId);
+        e = 0;
+        if (fadeOut != 'inf') {
+          setTimeout(() => {
+            element.innerHTML = '';
+            resolve();
+          }, fadeOut)
+        }
+        else{
+          resolve();
+        }
+      }
+    }, speed)}
   })
 }
 
-function beggining(){
+function beggining() {
+  speechSynthesis?.cancel();
   info.addEventListener('click', info_fun);
-  start_button.addEventListener('click', start_fun);
-  typing_effect(title, 'Guess the word!', true, 'inf', 70)
-  start_button.style.visibility = 'visible'
-}
-
-function info_fun(){
-  if(switcher){
-    description.innerText = description_string
-    switcher = false
-  }
-  else{
-    description.innerText = 'Author: Pablo Santana de Oliveira'
-    switcher = true
+  startBtn.addEventListener('click', start_fun);
+  reviewBtn.addEventListener('click', review_fun);
+  typingPromise = typing_effect(gameTitleHtml, 'Guess the word!', true, 'inf', 70, false)
+  startBtn.style.visibility = 'visible'
+  try {
+    wordsSeen = JSON.parse(localStorage['wordsUsed'])
+  } catch (error) {
+    wordsSeen = [];
   }
   
 }
+async function review_fun(_) {
+    await typingPromise;
+    //deleting the game title
+    typing_effect(gameTitleHtml, '', false, 0, 50, false)
+      .then(()=>{
 
-function start_fun(){
-  description.remove();
-  info.remove();
-  start_button.remove();
-  title_defs.innerText = 'Definitions:'
-  title_defs.appendChild(score_e)
-  score_e = document.getElementById("score");
-  score_e.innerText = "Score: "+score;
-  middle.style.animationPlayState = 'running'
-  next.style.display = 'inline-block'
-  next.style.animationPlayState = 'running'
-  title.remove();
-  newWord()
-  .then(()=>{
-      inputs_animation();
+        btnContainer.style.display = 'flex'
+        btnContainer.style.animationPlayState = 'running'
+        defsTitleHtml.innerText = 'Seen words:'
+        defsTitleHtml.style.visibility = 'visible'
+        next.remove();
+        copyAnswerBtn.remove();
+        showAnswerBtn.remove();
+        gameTitleContainer.remove();
+        startBtn.remove();
+        reviewBtn.remove();
+        info.remove();
+        description.remove();
+        toggleAudioBtn.remove();
+
+        defsCard.style.animationPlayState = 'running';
+
+        for(let i = 0; i<wordsSeen.length; i++){
+          let wordSeenHtml = document.createElement('li');
+          wordSeenHtml.innerHTML = wordsSeen[i];
+          wordSeenHtml.innerHTML += copyHtml;
+          wordSeenHtml.lastElementChild.addEventListener('click', copySeenWord)
+          defsListHtml.appendChild (wordSeenHtml);
+
+          function copySeenWord(_){
+            navigator.clipboard.writeText(wordSeenHtml.innerText)
+          }
+        }
     })
 }
+function info_fun() {
+  if (switcher) {
+    description.innerText = 'Author: Pablo Santana de Oliveira'
+    switcher = false
+  }
+  else {
+    description.innerText = description_string
+    switcher = true
+  }
 
-function next_fun(){
-  clearInterval(t);
-  clearInterval(checking);
-  setTimeout(()=>{
-  deleting();
-  defs_single_string = ''
-  defs_html.innerHTML = ''
-  word_guess = '';
-  input_index = 0;
-  inputs_container.style.animation = '';
-  newWord().then(()=>{
-    inputs_animation();
-  })
-
-  }, 300)
 }
-function deleting() {
-  while(letterInputs.length>0){
-    letterInputs[letterInputs.length-1].remove()
+
+async function start_fun() {
+  sucessSoundEffect = new Audio('./audio/shortSuccessSound.mp3')
+  onlyOnIntro.forEach((e)=>e.classList.add('running-animation'));
+  
+  await typingPromise;
+  //deleting the game title
+  await typing_effect(gameTitleHtml, '', false, 0, 50, false)
+
+  next.addEventListener('click', next_fun);
+  showAnswerBtn.addEventListener('click', showAnswer_fun);
+  defsCard.addEventListener('click', skip_defsAnim);
+  copyAnswerBtn.addEventListener('click', copy_answer);
+
+
+  gameTitleHtml.remove();
+  gameTitleContainer.remove();
+  info.remove();
+  description.remove();
+  startBtn.remove();
+  reviewBtn.remove();
+
+  toggleAudioBtn.style.display = 'inline-block'
+  defsTitleHtml.style.visibility = 'visible';
+  unmutedIcon.style.display = 'inline';
+  bottomContainer.style.alignContent = 'center';
+  score_e = document.getElementById("score");
+  score_e.innerText = "Score: " + score;
+  btnContainer.style.display = 'flex'
+  btnContainer.style.animationPlayState = 'running'
+  inputsContainer.style.display = 'flex';
+  newWord()
+    .then(() => {
+      inputs_animation();
+      defsCard.style.animationPlayState = 'running';
+      doneTypingDefs = defsAnim();
+      if ('speechSynthesis' in window) {
+        voices = speechSynthesis.getVoices();
+        voice = voices.find(voice=> voice.name.includes('Mark'))
+        !voice ? voice = voices.find(voice=> voice.name.includes('English')) : null;
+        if(voice){
+          defsSpeech = new SpeechSynthesisUtterance(defs.join('. '));
+          defsSpeech.voice = voice;
+          defsSpeech.pitch = 1;
+          defsSpeech.rate = 1;
+          defsSpeech.volume = 1;
+          defsSpeech.lang = 'en-US';
+          speechSynthesis.speak(defsSpeech);
+          toggleAudioBtn.addEventListener('click', toggleAudio_fun);
+        }
+        else{
+          toggleAudio_fun();
+        }
+      }
+      else {
+        mutedIcon.style.display = "inline";
+        unmutedIcon.style.display = '';
+      }
+    })
+    .catch(()=>{console.log('nextRound error')})
+
+
+  function copy_answer(_){
+    navigator.clipboard.writeText(words[index])
+  }
+
+
+  function toggleAudio_fun(_){
+    //muting
+    if (mutedIcon.style.display == '') { 
+      speechSynthesis.cancel();
+      mutedIcon.style.display = "inline";
+      unmutedIcon.style.display = '';
+      muted = true;
+    }
+    //unmuting 
+    else {
+      speechSynthesis.speaking? null : speechSynthesis.speak(defsSpeech);
+      mutedIcon.style.display = '';
+      unmutedIcon.style.display = "inline";
+      muted = false;
+    }
+  }
+  async function skip_defsAnim(_) {
+    gTypingSpeed = 0;
+    await doneTypingDefs;
+    gTypingSpeed = 40;
+  }
+
+  async function next_fun(_) {
+    clearInterval(typeTimerId);
+    clearInterval(checkingTimerId);
+    defsListHtml.innerHTML = ''
+    deleting();
+    defsListHtml.innerHTML = ''
+    word_guess = '';
+    inputsContainer = document.getElementById("inputsContainer");
+    inputsContainer.style.animation = '';
+    newWord().then(() => {
+      inputs_animation();
+      doneTypingDefs = defsAnim();
+      copyAnswerBtn.style.display = 'none'
+      showAnswerBtn.style.display = 'inline-block'
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        if(voice){
+          defsSpeech = new SpeechSynthesisUtterance(defs.join('. '));
+          defsSpeech.voice = voice;
+          defsSpeech.pitch = 1;
+          defsSpeech.rate = 1;
+          defsSpeech.volume = 1;
+          defsSpeech.lang = 'en-US';
+          speechSynthesis.speak(defsSpeech);
+          toggleAudioBtn.addEventListener('click', toggleAudio_fun);
+          !muted ? speechSynthesis.speak(defsSpeech) : null;
+        }
+        else{
+          muted = true;
+        }
+      } 
+      else {
+        mutedIcon.style.display = "inline";
+        unmutedIcon.style.display = '';
+      }
+    })
+    .catch(()=>{console.log('nextRound error')})
+    return new Promise((res, rej)=>res())
+  }
+
+  function showAnswer_fun(_) {
+    clearInterval(checkingTimerId);
+    letterInputs = document.getElementsByClassName('letterInputs');
+    for(let i=0; i<letterInputs.length; i++){
+      letterInputs[i].setAttribute('value', words[index][i]);
+      letterInputs[i].setAttribute('readonly', '');
+      letterInputs[i].style.color = '#3C896D';
+    }
+    copyAnswerBtn.style.display = 'inline-block'
+    showAnswerBtn.style.display = 'none'
   }
 }
 
-function error(){
-  defs_html.innerText = "Falha na conexão!"
+
+function deleting() {
+  while (letterInputs.length > 0) {
+    letterInputs[letterInputs.length - 1].remove()
+  }
 }
 
-function inputs_animation(){
-  inputs_container = document.getElementById("inputs_container");
-  
-  for(const a of Array(words[index].length)){
-    inputs_container.innerHTML += input_html;
+function error() {
+  defsListHtml.innerText = "Falha na conexão!"
+}
+
+function inputs_animation() {
+  inputsContainer = document.getElementById("inputsContainer");
+  for (const a of Array(words[index].length)) {
+    inputsContainer.innerHTML += inputHtml;
   }
 
   letterInputs = document.getElementsByClassName('letterInputs');
-  inputs_container.style.animation = 'dealing_cards_translation 2s cubic-bezier(0,1.02,0,1.02) 1s normal forwards, dealing_cards_spread 1.5s ease-in-out 1s normal forwards';
-  for(let l = 0; l<words[index].length; l++){
-    if(words[index][l] == ' '){
+  inputsContainer.style.animation = 'dealing_cards_translation 4s cubic-bezier(0,1.0,0,1.0) normal forwards, dealing_cards_spread 3s ease-in-out 0s normal forwards';
+  for (let l = 0; l < words[index].length; l++) {
+    if (words[index][l] == ' ') {
       letterInputs[l].style.opacity = '0%'
       letterInputs[l].setAttribute("value", ' ')
       letterInputs[l].setAttribute('readonly', '')
       letterInputs[l].style.width = "2.5vmin"
     }
-    else if(words[index][l] == '-'){
+    else if (words[index][l] == '-') {
       letterInputs[l].setAttribute("value", '-')
       letterInputs[l].setAttribute('readonly', '')
     }
   }
   letterInputs = document.getElementsByClassName('letterInputs');
-  inputs_container = document.getElementById("inputs_container");
+  inputsContainer = document.getElementById("inputs_container");
 
-  next.addEventListener('click', next_fun)
-  letterInputs[input_index]?.focus();
-  backspace_detection();
-
-  checking = setInterval(()=>{
-
-    if(letterInputs[input_index]?.value != ''){
-      check_letters(letterInputs[input_index]);
-      if(input_index < words[index].length - 1){
-        if(letterInputs[input_index+1].readOnly == true){
-          input_index += 2;
-          letterInputs[input_index]?.focus();
-        }
-        else{
-          input_index += 1;
-          letterInputs[input_index]?.focus();
-        }
-
-      }
-    }
-    else if(letterInputs[input_index]){
-      letterInputs[input_index].style.color = 'white';
-    }
-  }, 200)
-
-  return new Promise((resolve, reject) => {
-    resolve();
-  })
-  
+  inputHandler();
 }
 
 
-var check_letters = (letterInput)=>{
-  if(word_guess == words[index]){
-    score +=1
-    score_e.innerText = "Score: "+score;
-    localStorage['score'] = score;
-    next_fun();
-  }
-  else if(letterInput.value != ''){
-    if(words[index][input_index] == letterInput.value){
-      letterInput.style.color = 'green'
+function checkLetters(letterInput, input_index){
+  let hit = false;
+  console.log('checking')
+  if (letterInput.value != '') {
+    if (words[index][input_index] == letterInput.value) {
+      letterInput.style.color = '#3C896D'
+      hit = true;
     }
-    else{
-      letterInput.style.color = 'red'
+    else {
+      letterInput.style.color = '#FE4A49'
     }
-    if(letterInputs.length - 1 == input_index){
-      if(letterInput.value != ''){
-        for(const letterInput of letterInputs){
+    if (input_index === letterInputs.length - 1) {
+      word_guess = '';
+      if (letterInput.value != '') {
+        for (const letterInput of letterInputs) {
           word_guess += letterInput.value;
         }
       }
-      
     }
   }
-  else{
-    letterInput.style.color = 'white'
+  if (word_guess == words[index]) {
+    gTypingSpeed = 0;
+    doneTypingDefs.then(()=>gTypingSpeed = 40);
+    score += 1
+    score_e.innerText = "Score: " + score;
+    localStorage['score'] = score;
+    defsCard.style.setProperty('--cyan', 'rgba(60, 137, 109, 0.4)');
+    document.querySelector(':root').style.setProperty('--scrollColor', 'rgba(60, 137, 109, 0.4)');
+    for(let i=0; i<letterInputs.length; i++){
+      letterInputs[i].setAttribute('readonly', '');
+    }
+
+    confetti();
+    speechSynthesis?.cancel();
+    sucessSoundEffect.play();
   }
-  
+  return hit;
 }
-function backspace_detection(){
-  for(const letterInput of letterInputs){
-    letterInput.addEventListener('keydown', function(event) {
-      const key = event.key; // const {key} = event; ES6+
-      if (key === "Backspace" && input_index>0 && letterInput.value == '') {
-        if(letterInputs[input_index+1]?.readOnly == true){
-          input_index -= 2;
+function inputHandler() {
+  console.log('input')
+  Array.from(letterInputs).forEach((letterInput, input_index)=>{
+    letterInput.addEventListener('keypress', checking)
+    function checking(event){
+      event.preventDefault();
+      const key = event.key; 
+      console.log(event)
+      if (key === "Backspace") {
+        letterInput.style.color = 'rgb(144, 144, 144)';
+
+        if(letterInput.value == ''){
+          if (letterInputs[input_index - 1]?.readOnly == true) {
+            -1 < input_index - 2 ? letterInputs[input_index - 2].focus() : null;;
+          }
+          else {
+            (-1 < input_index - 1) ? letterInputs[input_index - 1].focus() : null;
+          }
         }
         else{
-          input_index -= 1;
+          letterInput.setAttribute('value', '')
+          letterInput.setSelectionRange(1, 1);
         }
-        letterInputs[input_index]?.focus();
-        letterInputs[input_index].setAttribute("value", '');
       }
-    });
-  }
- 
+      else{
+        letterInput.setAttribute("value", key);
+        letterInput.setSelectionRange(1, 1);
+        console.log('alooo')
+        let hit = checkLetters(letterInput, input_index);
+        if(hit){
+          if (letterInputs[input_index + 1]?.readOnly == true) {
+            input_index + 2 < letterInputs.length ? letterInputs[input_index + 2].focus() : null;
+          }
+          else {
+            input_index + 1 < letterInputs.length ? letterInputs[input_index + 1].focus() : null;
+          }
+        }
+      }
+    }
+  })
 }
 
 
@@ -247,87 +457,62 @@ function getValues(obj, key) {
 
   var objects = [];
   for (var i in obj) {
-      if (!obj.hasOwnProperty(i)) continue;
-      if (typeof obj[i] == 'object') {
-          objects = objects.concat(getValues(obj[i], key));
-      } else if (i == key) {
-          objects.push(obj[i]);
-      }
+    if (!obj.hasOwnProperty(i)) continue;
+    if (typeof obj[i] == 'object') {
+      objects = objects.concat(getValues(obj[i], key));
+    } else if (i == key) {
+      objects.push(obj[i]);
+    }
   }
   return objects;
 }
 var word2 = '';
 
-async function newWord(){
-  index = ( Math.floor(Math.random() * 233464));
-  await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + words[index])
-  .then((response)=>{
-    if(response.ok){
-      response.json().then((json)=>{
-        defs = getValues(json, 'definition')
-        stringify();
-        typeTimerForDefs();
-        return new Promise((resolve, reject) => {
-          resolve();
-        })
-      })
-      
+async function newWord() {
+
+  var attempts = 0;
+  var wordFound = false;
+  var wordPromise;
+  return newFetch();
+  
+  async function newFetch(){
+
+    do{
+      index = (Math.floor(Math.random() * words.length));
+    }
+    while(wordsSeen?.includes(words[index]));
+
+    wordsSeen.push(words[index])
+    localStorage['wordsUsed'] = JSON.stringify(wordsSeen)
+
+    const response = await fetch('https://api.dictionaryapi.dev/api/v2/entries/en/' + words[index])
+    if (response.ok) {
+      const json = await response.json();
+      defs = getValues(json, 'definition');
+      return new Promise((res, rej)=>res());
+    }
+    else if(attempts < 5){
+      attempts++;
+      return newFetch();
     }
     else{
-      return newWord();
+      return new Promise((res, rej)=>rej());
     }
-  })
-  
-}
-function stringify(){
-  let x = 0
-  while(x<defs.length){
-    if(x+1 == defs.length){
-      defs_single_string += '→ ' + defs[x]
-    }else{
-      defs_single_string += '→ ' + defs[x] + '\r\n';
-    }
-    x += 1
   }
 }
-function typeTimerForDefs(){
-  title_defs.style.visibility = 'visible';
 
-  let div_middle_height = parseFloat(window.getComputedStyle(document.getElementsByClassName('middle')[0], null).getPropertyValue('height').replace("px", ''));
-  let div_middle_width = parseFloat(window.getComputedStyle(document.getElementsByClassName('middle')[0], null).getPropertyValue('width').replace("px", ''));
-  let prev_font_size = div_middle_height * 0.07;
-
-  break_lines = 0
-
-  for(let def of defs){
-    break_lines += Math.floor(((def.length + 2) * prev_font_size) / (parseFloat(document.getElementsByClassName('middle')[0].clientWidth)));
-  }
-  n_lines = defs.length + break_lines;
-
-  if(n_lines * prev_font_size > div_middle_height){
-    while(n_lines * prev_font_size > div_middle_height){
-      break_lines = 0
-      prev_font_size *= 0.99
-      for(let def of defs){
-        break_lines += Math.floor(((def.length + 2) * prev_font_size) / (parseFloat(document.getElementsByClassName('middle')[0].clientWidth)));
-      }
-      n_lines = defs.length + break_lines;
-      
+async function defsAnim(){ 
+  var curDef = 0;
+  const defsElem = Array.from({length: defs.length}, () => document.createElement('li'));
+  await typeDef();
+  async function typeDef(){
+    if(curDef < defs.length){
+      defsListHtml.appendChild(defsElem[curDef]);
+      await typing_effect(defsElem[curDef], defs[curDef], false, 'inf', gTypingSpeed,  curDef + 1 != defs.length);
+// on the last index, ^ this will be false and then we'll keep the cursor 
+      curDef += 1;
+      return typeDef();
     }
-    let target_font_size_per = (prev_font_size / div_middle_height) * 100;
-    defs_html.style.fontSize = (target_font_size_per).toString() + '%';
   }
-  
-  let i = 0
-  const t = setInterval(function() {
-    i = i+1
-    defs_html.innerHTML = defs_single_string.slice(0, i) + cursor2_html;
-    if(i > defs_single_string.length){ //typed all defs
-      clearInterval(t);
-      defs_html.innerHTML = defs_single_string.slice(0, i);
-    }
-  }, 70)
-
+  return new Promise((res, rej)=>res());
 }
-
-beggining();
