@@ -1,70 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="color-scheme" content="light dark">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" interactive-widget=resizes-visual>
     <link rel="stylesheet" href="/style.css?v=1.0.6" type="text/css">
     <link rel="preconnect" href="https://fonts.googleapis.com" type="text/css">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin type="text/css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet" type="text/css">
     <link rel="shortcut icon" href="images/gtwIcon.png" type="image/x-icon">
-    <script src="/c1toc2wordsfromgpt.js"> </script>
+    <script src="./word_databases/words_descending.js"> </script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <script src="/old.js?v=1.0.1" defer> </script>
+    <script src="/front.js?v=1.0.2" defer> </script>
 
     <title>Guess the word!</title>
 </head>
+
 <body>
-    <div id="gameContainer">
-        <div id="topContainer">
-            <button id="toggleAudioBtn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="3vmin" height="3vmin" viewBox="0 0 24 24" id="unmutedIcon"><path fill="currentColor" d="M11.553 3.064A.75.75 0 0 1 12 3.75v16.5a.75.75 0 0 1-1.255.555L5.46 16H2.75A1.75 1.75 0 0 1 1 14.25v-4.5C1 8.784 1.784 8 2.75 8h2.71l5.285-4.805a.752.752 0 0 1 .808-.13ZM10.5 5.445l-4.245 3.86a.748.748 0 0 1-.505.195h-3a.25.25 0 0 0-.25.25v4.5c0 .138.112.25.25.25h3c.187 0 .367.069.505.195l4.245 3.86Zm8.218-1.223a.75.75 0 0 1 1.06 0c4.296 4.296 4.296 11.26 0 15.556a.75.75 0 0 1-1.06-1.06a9.5 9.5 0 0 0 0-13.436a.75.75 0 0 1 0-1.06Z"/><path fill="currentColor" d="M16.243 7.757a.75.75 0 1 0-1.061 1.061a4.5 4.5 0 0 1 0 6.364a.75.75 0 0 0 1.06 1.06a6 6 0 0 0 0-8.485Z"/></svg>
-                <svg xmlns="http://www.w3.org/2000/svg" width="3vmin" height="3vmin" viewBox="0 0 36 36" id="mutedIcon"><path fill="currentColor" d="M3.61 6.41L9.19 12H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h5.14l7.41 7.47A2 2 0 0 0 18 32a2 2 0 0 0 .76-.15A2 2 0 0 0 20 30v-7.23l5.89 5.89c-.25.15-.49.29-.75.42a1 1 0 0 0 .9 1.79a14.4 14.4 0 0 0 1.31-.75l2.28 2.28L31 31L5 5ZM18 30l-7.73-7.77a1 1 0 0 0-.71-.23H4v-8h5.64a1 1 0 0 0 .71-.3l.26-.26L18 20.81Z" class="clr-i-outline clr-i-outline-path-1"/><path fill="currentColor" d="M24.89 6.69A12.42 12.42 0 0 1 29 26.1l1.42 1.42a14.42 14.42 0 0 0-4.66-22.64a1 1 0 1 0-.87 1.8Z" class="clr-i-outline clr-i-outline-path-2"/><path fill="currentColor" d="M22.69 12.62A6.27 6.27 0 0 1 25.8 18a6.17 6.17 0 0 1-1.24 3.71L26 23.13A8.15 8.15 0 0 0 27.8 18a8.28 8.28 0 0 0-4.1-7.11a1 1 0 1 0-1 1.73Z" class="clr-i-outline clr-i-outline-path-3"/><path fill="currentColor" d="M18 6v9.15l2 2V6a2 2 0 0 0-3.42-1.41L12 9.17l1.41 1.41Z" class="clr-i-outline clr-i-outline-path-4"/><path fill="none" d="M0 0h36v36H0z"/></svg>
+    <div id="game_div" >
+        <div id="top_div">
+            <button id="toggleAudio_btn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="3vmin" height="3vmin" viewBox="0 0 24 24"
+                    id="unmutedIcon_svg">
+                    <path fill="currentColor"
+                        d="M11.553 3.064A.75.75 0 0 1 12 3.75v16.5a.75.75 0 0 1-1.255.555L5.46 16H2.75A1.75 1.75 0 0 1 1 14.25v-4.5C1 8.784 1.784 8 2.75 8h2.71l5.285-4.805a.752.752 0 0 1 .808-.13ZM10.5 5.445l-4.245 3.86a.748.748 0 0 1-.505.195h-3a.25.25 0 0 0-.25.25v4.5c0 .138.112.25.25.25h3c.187 0 .367.069.505.195l4.245 3.86Zm8.218-1.223a.75.75 0 0 1 1.06 0c4.296 4.296 4.296 11.26 0 15.556a.75.75 0 0 1-1.06-1.06a9.5 9.5 0 0 0 0-13.436a.75.75 0 0 1 0-1.06Z" />
+                    <path fill="currentColor"
+                        d="M16.243 7.757a.75.75 0 1 0-1.061 1.061a4.5 4.5 0 0 1 0 6.364a.75.75 0 0 0 1.06 1.06a6 6 0 0 0 0-8.485Z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="3vmin" height="3vmin" viewBox="0 0 36 36" id="mutedIcon_svg">
+                    <path fill="currentColor"
+                        d="M3.61 6.41L9.19 12H4a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h5.14l7.41 7.47A2 2 0 0 0 18 32a2 2 0 0 0 .76-.15A2 2 0 0 0 20 30v-7.23l5.89 5.89c-.25.15-.49.29-.75.42a1 1 0 0 0 .9 1.79a14.4 14.4 0 0 0 1.31-.75l2.28 2.28L31 31L5 5ZM18 30l-7.73-7.77a1 1 0 0 0-.71-.23H4v-8h5.64a1 1 0 0 0 .71-.3l.26-.26L18 20.81Z"
+                        class="clr-i-outline clr-i-outline-path-1" />
+                    <path fill="currentColor"
+                        d="M24.89 6.69A12.42 12.42 0 0 1 29 26.1l1.42 1.42a14.42 14.42 0 0 0-4.66-22.64a1 1 0 1 0-.87 1.8Z"
+                        class="clr-i-outline clr-i-outline-path-2" />
+                    <path fill="currentColor"
+                        d="M22.69 12.62A6.27 6.27 0 0 1 25.8 18a6.17 6.17 0 0 1-1.24 3.71L26 23.13A8.15 8.15 0 0 0 27.8 18a8.28 8.28 0 0 0-4.1-7.11a1 1 0 1 0-1 1.73Z"
+                        class="clr-i-outline clr-i-outline-path-3" />
+                    <path fill="currentColor" d="M18 6v9.15l2 2V6a2 2 0 0 0-3.42-1.41L12 9.17l1.41 1.41Z"
+                        class="clr-i-outline clr-i-outline-path-4" />
+                    <path fill="none" d="M0 0h36v36H0z" />
+                </svg>
             </button>
-            <h1 id="defsTitle">Definitions:</h1>
-            <span id="score"></span>
+            <h1 id="defsTitle_h1">Definitions:</h1>
+            <span id="score_span"></span>
         </div>
-            
-        <div id="midContainer">
-            <div id="defsCard">
-                <ul id="defsList"></ul>
-                <div id="gameTitleContainer">
-                    <h1 id="gameTitle"></h1>
+
+        <div id="mid_div">
+            <div id="defsCard_div">
+                <div id="defsList_div">
+                    <ul id="defs_ul"></ul>
                 </div>
+                <div id="gameTitle_div">
+                    <h1 id="gameTitle_h1"></h1>
+                </div>
+                <!-- <div id="toastTip_div">You can tap on this box to skip the animation</div> -->
             </div>
         </div>
 
-        <div id="bottomContainer">
-            <div id="homeBtnsContainer">
-                <button id="startBtn" class="onlyOnIntro btn">Start!</button>
-                <button id="reviewBtn" class="onlyOnIntro btn">Review seen words</button>
+        <div id="bottom_div">
+
+            <div id="homeBtns_div">
+                <button id="start_btn" class="onlyOnIntro btn">Start!</button>
+                <button id="review_btn" class="onlyOnIntro btn">Review seen words</button>
             </div>
 
-            <div id="inputsContainer" ></div>
+            <div id="inputs_div"></div>
 
-            <div id="infoContainer">
-                <p id="description" class="onlyOnIntro">Author: Pablo Santana de Oliveira</p>
-                <button><img id="info" src="images/info.png" class="onlyOnIntro"></button>
-             </div>
-            <div id="btnContainer">
-                <button class="btn" id="home">
-                    <a href="/index.html" onclick="()=>speechSynthesis.cancel()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="3vmin" height="3vmin" viewBox="0 0 24 24"><path fill="currentColor" d="M4 21V9l8-6l8 6v12h-6v-7h-4v7H4Z"/></svg>
+            <div id="info_div" class="onlyOnIntro">
+                <p id="infoText_para" >This game intends to increase the retrievability of English words, by using the active recall method to make a concept turn into a stronger trigger for the actual word.</p>
+                <button id="info_btn"><img src="images/info.png"></button>
+            </div>
+            <div id="btns_div">
+                <div id="speedBtns_div">
+                    <button id="speedDown_btn" class="btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50%" height="50%" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M12 16c1.66 0 3-1.34 3-3c0-1.12-.61-2.1-1.5-2.61L3.79 4.77l5.53 9.58c.5.98 1.51 1.65 2.68 1.65m0-13c-1.81 0-3.5.5-4.97 1.32l2.1 1.21C10 5.19 11 5 12 5c4.42 0 8 3.58 8 8c0 2.21-.89 4.21-2.34 5.65h-.01a.996.996 0 0 0 0 1.41c.39.39 1.03.39 1.42.01A9.969 9.969 0 0 0 22 13c0-5.5-4.5-10-10-10M2 13c0 2.76 1.12 5.26 2.93 7.07c.39.38 1.02.38 1.41-.01a.996.996 0 0 0 0-1.41A7.95 7.95 0 0 1 4 13c0-1 .19-2 .54-2.9L3.33 8C2.5 9.5 2 11.18 2 13Z" />
                         </svg>
-                    </a>
-            </button>
-                <button id="showAnswerBtn" class="btn">Ans</button>
-                <button id="copyAnswerBtn" class="btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M5 22q-.825 0-1.413-.588T3 20V6h2v14h11v2H5Zm4-4q-.825 0-1.413-.588T7 16V4q0-.825.588-1.413T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.588 1.413T18 18H9Z"/></svg>
+                    </button>
+                    <button id="speedUp_btn" class="btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="50%" height="50%" viewBox="0 0 24 24">
+                            <path fill="currentColor"
+                                d="M12 16a3 3 0 0 1-3-3c0-1.12.61-2.1 1.5-2.61l9.71-5.62l-5.53 9.58c-.5.98-1.51 1.65-2.68 1.65m0-13c1.81 0 3.5.5 4.97 1.32l-2.1 1.21C14 5.19 13 5 12 5a8 8 0 0 0-8 8c0 2.21.89 4.21 2.34 5.65h.01c.39.39.39 1.02 0 1.41c-.39.39-1.03.39-1.42.01A9.969 9.969 0 0 1 2 13A10 10 0 0 1 12 3m10 10c0 2.76-1.12 5.26-2.93 7.07c-.39.38-1.02.38-1.41-.01a.996.996 0 0 1 0-1.41A7.95 7.95 0 0 0 20 13c0-1-.19-2-.54-2.9L20.67 8C21.5 9.5 22 11.18 22 13Z" />
+                        </svg>
+                    </button>
+                </div>
+                <a href="/index.html" id="home_btn" onclick="()=>window.speechSynthesis.cancel()">
+                <button class="btn">
+
+                    <svg xmlns="http://www.w3.org/2000/svg" width="3vmin" height="3vmin" viewBox="0 0 24 24">
+                        <path fill="currentColor" d="M4 21V9l8-6l8 6v12h-6v-7h-4v7H4Z" />
+                    </svg>
+                    </svg>
+
                 </button>
-                <button id="next" class="btn">>></button>
+                </a>
+                <button id="showAnswer_btn" class="btn">Ans</button>
+                <button id="copyAnswer_btn" class="btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                        <path fill="currentColor"
+                            d="M5 22q-.825 0-1.413-.588T3 20V6h2v14h11v2H5Zm4-4q-.825 0-1.413-.588T7 16V4q0-.825.588-1.413T9 2h9q.825 0 1.413.588T20 4v12q0 .825-.588 1.413T18 18H9Z" />
+                    </svg>
+                </button>
+                <button id="next_btn" class="btn">>></button>
             </div>
-            
+            <div id="generalToast_div" class="hidden">Copied to clipboard!</div>
         </div>
-        
+
 
     </div>
 </body>
+
 </html>
