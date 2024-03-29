@@ -1,4 +1,4 @@
-(function init(){
+(function init() {
   //main div
   var DOMroot = document.querySelector(":root");
 
@@ -6,7 +6,7 @@
   //related to all buttons
   var bottom_div = document.getElementById('bottom_div');
   var btns_div = document.getElementById("btns_div");
-  
+
   //related to buttons in the intro scene
   var OnlyOnIntro = document.querySelectorAll(".onlyOnIntro");
   var start_btn = document.getElementById("start_btn");
@@ -43,7 +43,7 @@
   //related to game title
   var gameTitle_div = document.getElementById('gameTitle_div');
   var gameTitle_h1 = document.getElementById('gameTitle_h1');
-  
+
   //related to inputs
   var inputs_div = document.getElementById("inputs_div");
   var LetterInputs = document.getElementsByClassName('letterInputs');
@@ -67,34 +67,51 @@
   //related to the typing effect
   var gameTitleBeenTyped;
   var doneTypingDefs;
-  var wordIndex;
+  var wordIndex = 0;
   var stopTyping = false;
   var typingTimerId;
-  
+
   //related to checking the letters
   var checkingTimerId;
   var word_guess = '';
   var sucessSoundEffect = new Audio('./audio/shortSuccessSound.mp3');
+  var tipIdx = 0;
+  var tip_btn = document.getElementById("tip_btn")
+  var tipped = []
 
-  //vh fix for mobile
-  var vh = window.innerHeight * 0.01;
-  DOMroot.style.setProperty('--vh', `${vh}px`);
-  
-  window.addEventListener('resize', () => {
-    var vh = window.innerHeight * 0.01;
+  // //vh fix for mobile
+  // var vh = window.innerHeight * 0.01;
+  // DOMroot.style.setProperty('--vh', `${vh}px`);
+
+  // window.addEventListener('resize', () => {
+  //   var vh = window.innerHeight * 0.01;
+  //   DOMroot.style.setProperty('--vh', `${vh}px`);
+  // })
+
+  function setRu() {
+    const view_width = window.innerWidth;
+    const view_height = window.innerHeight;
+    const min_view = view_width < view_height ? view_width : view_height;
+    const ru = (0.0100339 - (5e-4 / 724) * view_width) * min_view;
+    const ru_text = ru.toString() + "px";
+    DOMroot.style.setProperty('--ru', ru_text);
+    const vh = view_height * 0.01;
     DOMroot.style.setProperty('--vh', `${vh}px`);
+  }
+  setRu();
+  window.addEventListener('resize', () => {
+    setRu()
   })
 
-
-
   window.addEventListener('load', beginning);
-  
+
   function beginning() {
-    
+    console.log("aaaaaaaa")
+    tip_btn.addEventListener('click', showTip);
     info_btn.addEventListener('click', info_fun);
     start_btn.addEventListener('click', start_fun);
     review_btn.addEventListener('click', review_fun);
-    gameTitleBeenTyped = typing_effect({element: gameTitle_h1, str: 'Guess the word!', oneWordPerLine: true, fadeoutDelay: 'inf', speed: 70, disposeCursor: false})
+    gameTitleBeenTyped = typing_effect({ element: gameTitle_h1, str: 'Guess the word!', oneWordPerLine: true, fadeoutDelay: 'inf', speed: 70, disposeCursor: false })
     start_btn.style.visibility = 'visible'
     try {
       wordsUsed = JSON.parse(localStorage['wordsUsed'])
@@ -110,7 +127,7 @@
     await gameTitleBeenTyped;
 
     //deleting the game title
-    await deleting_effect({element: gameTitle_h1, speed: 70, disposeCursor: false})
+    await deleting_effect({ element: gameTitle_h1, speed: 70, disposeCursor: false })
 
     next_btn.addEventListener('click', next_fun);
     showAnswer_btn.addEventListener('click', showAnswer_fun);
@@ -146,7 +163,7 @@
       .then(() => {
         inputs_animation();
         defsCard_div.style.animationPlayState = 'running';
-        showDefs();
+        setTimeout(showDefs, 2000)
         // doneTypingDefs = defsAnim();
 
         if ('speechSynthesis' in window) {
@@ -187,12 +204,12 @@
 
   }
 
-  function speedUpTTS(){
+  function speedUpTTS() {
     defsSpeech.rate += 0.1;
     generalToast_div.classList.add('show');
-    generalToast_div.innerText = `Rate: ${defsSpeech.rate.toFixed(2)}`; 
-    
-    if(toastTimeId){
+    generalToast_div.innerText = `Rate: ${defsSpeech.rate.toFixed(2)}`;
+
+    if (toastTimeId) {
       clearTimeout(toastTimeId);
     }
     toastTimeId = setTimeout(() => {
@@ -200,12 +217,12 @@
       toastTimeId = null;
     }, 1500);
   }
-  function speedDownTTS(_){
+  function speedDownTTS(_) {
     defsSpeech.rate -= 0.1;
     generalToast_div.classList.add('show');
-    generalToast_div.innerText = `Rate: ${defsSpeech.rate.toFixed(2)}`; 
-    
-    if(toastTimeId){
+    generalToast_div.innerText = `Rate: ${defsSpeech.rate.toFixed(2)}`;
+
+    if (toastTimeId) {
       clearTimeout(toastTimeId);
 
     }
@@ -217,14 +234,14 @@
   function copy_answer(_) {
     const successful = navigator.clipboard.writeText(words[wordIndex]) ?? copyFallback(words[wordIndex])
 
-    if(successful){
-      generalToast_div.innerText = 'Copied to clipboard!'; 
+    if (successful) {
+      generalToast_div.innerText = 'Copied to clipboard!';
     }
-    else{
+    else {
       generalToast_div.innerText = 'Failed to copy =(';
     }
-    
-    if(toastTimeId){
+
+    if (toastTimeId) {
       clearTimeout(toastTimeId);
     }
     generalToast_div.classList.add('show');
@@ -270,14 +287,17 @@
     defs_ul.innerHTML = ''
     deleting();
     word_guess = '';
+    tipIdx = 0
+    tipped = []
     defsCard_div.style.setProperty('--cyan', 'rgba(46, 240, 240, 0.4)');
     document.querySelector(':root').style.setProperty('--scrollColor', 'rgb(87, 186, 186)');
     inputs_div = document.getElementById("inputs_div");
     inputs_div.style.animation = '';
+    defsCard_div.style.animationPlayState = 'running';
     newWord().then(() => {
       inputs_animation();
       showDefs();
-      console.log( "aaa")
+      console.log("aaa")
       copyAnswer_btn.style.display = 'none'
       showAnswer_btn.style.display = 'inline-block'
       if ('speechSynthesis' in window) {
@@ -313,19 +333,19 @@
     showAnswer_btn.style.display = 'none'
   }
 
-  async function typing_effect({element, str, oneWordPerLine, fadeoutDelay, speed, disposeCursor}) {
-    
+  async function typing_effect({ element, str, oneWordPerLine, fadeoutDelay, speed, disposeCursor }) {
+
     var end = 0;
     return new Promise((resolve, reject) => {
       var text_span = document.getElementById('text_span')
-      if(!text_span || text_span.parentElement != element){
+      if (!text_span || text_span.parentElement != element) {
         text_span = document.createElement('span')
         text_span.id = 'text_span'
         element.appendChild(text_span);
-      } 
+      }
 
       var cursor_span = document.getElementById('cursor_span')
-      if(!cursor_span || cursor_span.parentElement != element){
+      if (!cursor_span || cursor_span.parentElement != element) {
         cursor_span = document.createElement('span')
         cursor_span.innerText = '|'
         cursor_span.id = 'cursor_span'
@@ -350,7 +370,7 @@
             }, fadeoutDelay)
             return;
           }
-          else{
+          else {
             resolve();
             return;
           }
@@ -376,32 +396,32 @@
       }, speed)
     })
   }
-  async function deleting_effect({element, speed, disposeCursor}) {
-    
+  async function deleting_effect({ element, speed, disposeCursor }) {
+
     return new Promise((resolve, reject) => {
       if (stopTyping) {
         reject();
         return;
       }
       var text_span = document.getElementById('text_span')
-      if(!text_span){
+      if (!text_span) {
         text_span = document.createElement('span')
         text_span.id = 'text_span'
         element.appendChild(text_span);
-      } 
+      }
 
       var cursor_span = document.getElementById('cursor_span')
-      if(!cursor_span){
+      if (!cursor_span) {
         var cursor_span = document.createElement('span')
         cursor_span.id = 'cursor_span'
         element.appendChild(cursor_span);
 
-      } 
-      
+      }
+
       tam = element.innerText.length;
       typingTimerId = setInterval(() => {
         if (tam == 0) {
-          if(disposeCursor){
+          if (disposeCursor) {
             cursor_span.remove();
           }
           resolve();
@@ -409,10 +429,10 @@
         }
         console.log(text_span.innerHTML)
         text_span.innerText = text_span.innerText.slice(0, -1)
-        
+
         tam -= 1
       }, speed)
-      
+
     })
   }
   function inputs_animation() {
@@ -427,7 +447,7 @@
       input.setAttribute('autocomplete', 'new-password')
       input.setAttribute('type', 'text')
       inputs_div.appendChild(input)
-    
+
     }
 
     LetterInputs = document.getElementsByClassName('letterInputs');
@@ -450,12 +470,28 @@
     inputHandler();
   }
 
+  function toast(text, ms) {
+
+    generalToast_div.classList.add('show');
+    generalToast_div.innerText = text;
+
+    if (toastTimeId) {
+      clearTimeout(toastTimeId);
+    }
+    toastTimeId = setTimeout(() => {
+      generalToast_div.classList.remove('show');
+      toastTimeId = null;
+    }, ms);
+
+  }
+
 
   function checkLetters(letterInput, input_index) {
     let hit = false;
     if (letterInput.value != '') {
       if (words[wordIndex][input_index] == letterInput.value) {
         letterInput.style.color = '#00ffa2'
+        letterInput.setAttribute('readOnly', '')
         hit = true;
       }
       else {
@@ -495,7 +531,7 @@
 
       function checkInput(event) {
         if (letterInput.value.length === 0) {
-          letterInput.style.color = 'rgb(144, 144, 144)';
+          letterInput.style.color = 'rgb(212, 212, 212)';
           return;
         }
         if (letterInput.value.length > 1) {
@@ -536,7 +572,7 @@
     await gameTitleBeenTyped;
 
     //deleting the game title
-    deleting_effect({element: gameTitle_h1, speed: 70, disposeCursor: false})
+    deleting_effect({ element: gameTitle_h1, speed: 70, disposeCursor: false })
       .then(() => {
         btns_div.style.display = 'flex'
         btns_div.style.animationPlayState = 'running'
@@ -608,16 +644,16 @@
 
             let successful = navigator.clipboard?.writeText(wordsUsed[i]) ?? copyFallback(wordsUsed[i]);
 
-      
+
             generalToast_div.classList.add('show');
 
-            if(successful){
-              generalToast_div.innerText = 'Copied to clipboard!'; 
+            if (successful) {
+              generalToast_div.innerText = 'Copied to clipboard!';
             }
-            else{
+            else {
               generalToast_div.innerText = 'Failed to copy =(';
             }
-            
+
             setTimeout(() => {
               generalToast_div.classList.remove('show');
             }, 1500);
@@ -651,7 +687,7 @@
   }
   function info_fun() {
     const description_string = 'This game intends to increase the retrievability of English words, by using the active recall method to make a concept turn into a stronger trigger for the actual word.';
-    
+
     if (turn) {
       infoText_para.innerText = 'Author: Pablo Santana de Oliveira'
       turn = false
@@ -661,6 +697,33 @@
       turn = true
     }
 
+  }
+
+  function showTip() {
+    console.log("alooo")
+    const LetterInputs = document.getElementsByClassName('letterInputs');
+
+    if (LetterInputs.length === 0) {
+      return
+    }
+
+    if (tipped.length >= Math.floor(LetterInputs.length / 2)) {
+      toast("No more tips for this word", 3000)
+      return
+    }
+
+    // find unasnwered
+    while (LetterInputs[tipIdx].readOnly && tipIdx < LetterInputs.length) {
+      toast("Jumped idx: " + tipIdx, 3000)
+      tipIdx++
+    }
+
+
+    LetterInputs[tipIdx].value = words[wordIndex][tipIdx]
+    LetterInputs[tipIdx].readOnly = true
+    LetterInputs[tipIdx].style.color = '#00ffa2';
+    tipped.push(tipIdx)
+    tipIdx++
   }
 
 
@@ -693,14 +756,13 @@
 
     var attempts = 0;
 
-    console.log("alooo")
 
     return newFetch();
 
     async function newFetch() {
 
       do {
-        wordIndex = (Math.floor(Math.random() * words.length));
+        wordIndex++;
       }
       while (wordsUsed?.includes(words[wordIndex]));
 
@@ -745,5 +807,8 @@
     //   }
     // }
     // return new Promise((res, rej) => res());
+  }
+  async function waitFor(ms) {
+    return new Promise(res => setTimeout(res, ms))
   }
 })();
