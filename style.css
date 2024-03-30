@@ -289,9 +289,7 @@ body {
 	animation-duration: 0.1s;
 	animation-fill-mode: forwards;
 	animation-play-state: paused;
-	grid-template-columns: 1fr 1fr 1fr 1fr;
-	grid-template-rows: 1fr;
-	grid-template-areas: " home ans tip next ";
+	flex-direction: column;
 	opacity: 0%;
 	justify-items: center;
 	align-items: center;
@@ -476,8 +474,13 @@ button:active {
 	user-select: none;
 }
 
+
 #generalToast_div.show {
 	display: block;
+}
+
+ a{
+	text-decoration: none;
 }
 
 @keyframes scale {

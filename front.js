@@ -154,7 +154,7 @@
     unmutedIcon_svg.style.display = 'inline';
     bottom_div.style.alignContent = 'center';
     score_span.innerText = "Score: " + score;
-    btns_div.style.display = 'grid'
+    btns_div.style.display = 'flex'
     btns_div.style.animationPlayState = 'running'
     inputs_div.style.display = 'flex';
 
