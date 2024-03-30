@@ -215,6 +215,7 @@ body {
 #defsList_div {
 	display: none;
 	place-content: center;
+	width: 100%;
 }
 
 #defs_ul > Li {
@@ -475,12 +476,11 @@ button:active {
 	user-select: none;
 }
 
-
 #generalToast_div.show {
 	display: block;
 }
 
- a{
+a {
 	text-decoration: none;
 }
 
